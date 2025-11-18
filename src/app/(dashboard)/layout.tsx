@@ -1,5 +1,7 @@
 'use client'
 
+import { useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
 import { SecurityProvider } from '@/contexts/SecurityContext'
 import { Sidebar } from '@/components/Sidebar'
@@ -12,9 +14,24 @@ interface DashboardLayoutProps {
 }
 
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
-  const { loading } = useAuth()
+  const { user, loading } = useAuth()
+  const router = useRouter()
 
+  useEffect(() => {
+    // Se não está carregando e não há usuário, redirecionar para login
+    if (!loading && !user) {
+      console.log('❌ Usuário não autenticado, redirecionando para login...')
+      router.push('/login')
+    }
+  }, [user, loading, router])
+
+  // Mostrar loading enquanto verifica autenticação
   if (loading) {
+    return <LoadingSpinner />
+  }
+
+  // Se não há usuário após o loading, não renderizar o dashboard
+  if (!user) {
     return <LoadingSpinner />
   }
 

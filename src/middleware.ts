@@ -6,8 +6,26 @@ export async function middleware(request: NextRequest) {
     request,
   })
 
-  // Se não tiver as variáveis de ambiente, pular o middleware
+  // Rotas públicas que não precisam de autenticação
+  const publicRoutes = ['/login', '/register', '/forgot-password']
+  const isPublicRoute = publicRoutes.some(route => 
+    request.nextUrl.pathname.startsWith(route)
+  )
+
+  // Se não tiver as variáveis de ambiente, redirecionar para login para rotas protegidas
   if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+    console.error('⚠️ Variáveis de ambiente do Supabase não configuradas')
+    
+    // Permitir apenas rotas públicas
+    if (!isPublicRoute && request.nextUrl.pathname !== '/') {
+      return NextResponse.redirect(new URL('/login', request.url))
+    }
+    
+    // Redirecionar root para login
+    if (request.nextUrl.pathname === '/') {
+      return NextResponse.redirect(new URL('/login', request.url))
+    }
+    
     return supabaseResponse
   }
 
@@ -33,14 +51,9 @@ export async function middleware(request: NextRequest) {
     // Verificar se o usuário está autenticado
     const { data: { session } } = await supabase.auth.getSession()
 
-    // Rotas públicas que não precisam de autenticação
-    const publicRoutes = ['/login', '/register', '/forgot-password']
-    const isPublicRoute = publicRoutes.some(route => 
-      request.nextUrl.pathname.startsWith(route)
-    )
-
     // Se não está logado e tenta acessar rota protegida (exceto root)
     if (!session && !isPublicRoute && request.nextUrl.pathname !== '/') {
+      console.log('🔒 Acesso negado - redirecionando para login:', request.nextUrl.pathname)
       const loginUrl = new URL('/login', request.url)
       loginUrl.searchParams.set('redirectTo', request.nextUrl.pathname)
       return NextResponse.redirect(loginUrl)
@@ -48,6 +61,7 @@ export async function middleware(request: NextRequest) {
 
     // Se está logado e tenta acessar rota pública, redirecionar para dashboard
     if (session && isPublicRoute) {
+      console.log('✅ Usuário autenticado - redirecionando para dashboard')
       return NextResponse.redirect(new URL('/dashboard', request.url))
     }
 
@@ -62,8 +76,15 @@ export async function middleware(request: NextRequest) {
 
     return supabaseResponse
   } catch (error) {
-    // Se der erro no middleware, permitir acesso
-    console.error('Middleware error:', error)
+    // Se der erro no middleware, redirecionar para login para segurança
+    console.error('❌ Erro no middleware:', error)
+    
+    // Permitir apenas rotas públicas em caso de erro
+    if (!isPublicRoute && request.nextUrl.pathname !== '/') {
+      console.log('⚠️ Erro no middleware - redirecionando para login por segurança')
+      return NextResponse.redirect(new URL('/login', request.url))
+    }
+    
     return supabaseResponse
   }
 }
