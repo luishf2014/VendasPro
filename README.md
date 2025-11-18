@@ -314,34 +314,42 @@ Se tudo estiver correto, você deve ver:
 
 ---
 
-## 👤 Primeiro Acesso
+## 🔐 Acesso ao Sistema
 
-### Criar Primeiro Usuário (Admin)
+### ⚠️ Sistema Interno de Empresa
 
-Como o registro público está desabilitado, o primeiro usuário deve ser criado diretamente no Supabase:
+**Este é um sistema de gestão interno** e **não possui registro público**. O acesso é restrito aos colaboradores da empresa.
 
-1. Acesse o **Supabase Dashboard** → **Authentication** → **Users**
-2. Clique em **"Add user"** → **"Create new user"**
-3. Preencha:
-   - Email: `seu-email@exemplo.com`
-   - Password: `sua-senha-segura`
-   - ✅ Marque **"Auto Confirm User"**
-4. Após criar, vá em **Table Editor** → **users**
-5. Encontre o usuário recém-criado e edite:
-   - `name`: Seu nome
-   - `role`: `admin` (ou `manager`)
-   - `active`: `true`
-6. Agora acesse `/login` e faça login com suas credenciais
+### 👥 Criação de Usuários
 
-> ⚠️ **Importante**: Após criar o primeiro admin, você pode criar novos usuários diretamente pelo sistema em `/dashboard/usuarios`
+Apenas o **Administrador do Sistema** pode criar, editar e excluir usuários através do painel de gestão em `/dashboard/usuarios`.
 
-### Hierarquia de Permissões
+**Não é possível:**
+- ❌ Fazer registro público
+- ❌ Criar conta própria
+- ❌ Recuperar senha sem admin
+- ❌ Acessar sem credenciais fornecidas
 
-| Role | Permissões |
-|------|-----------|
-| 👑 **Admin** | Acesso total, pode deletar clientes |
-| 👔 **Manager** | Criar/editar produtos e usuários, ver faturamento |
-| 👤 **User** | Apenas vendas e visualização |
+### 🔑 Como Obter Acesso
+
+1. **Solicite ao Administrador** da sua empresa
+2. O admin criará seu usuário com:
+   - Nome completo
+   - Email corporativo
+   - Senha temporária
+   - Nível de permissão adequado
+3. Faça login em `/login` com as credenciais fornecidas
+4. Altere sua senha no primeiro acesso (recomendado)
+
+### 📋 Hierarquia de Permissões
+
+| Role | Permissões | Descrição |
+|------|-----------|-----------|
+| 👑 **Admin** | Acesso total | Gerencia usuários, produtos, vendas e configurações |
+| 👔 **Manager** | Gerencial | Cria/edita produtos e usuários, visualiza faturamento |
+| 👤 **User** | Operacional | Realiza vendas e consulta produtos |
+
+> 💡 **Para Desenvolvedores**: Se você está instalando o sistema pela primeira vez, o primeiro usuário Admin deve ser criado diretamente no Supabase Dashboard. Consulte a documentação técnica em `docs/SETUP.md` para detalhes.
 
 ---
 
