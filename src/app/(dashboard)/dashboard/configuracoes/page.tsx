@@ -92,7 +92,7 @@ export default function ConfiguracoesPage() {
       // Atualizar perfil no banco
       await updateProfile({
         name: profile.name.trim(),
-        phone: profile.phone ? unformatPhone(profile.phone) : null
+        phone: profile.phone ? unformatPhone(profile.phone) : undefined
       })
 
       toast.success('✅ Perfil atualizado com sucesso!')
