@@ -1035,22 +1035,35 @@ export async function updateUser(userId: string, userData: {
   active?: boolean
 }) {
   try {
+    console.log('🔄 Iniciando atualização de usuário:', userId)
+    console.log('📋 Dados a atualizar:', userData)
+    
     // Verificar permissões
     const { hasPermission, userRole } = await checkUserManagementPermission()
     
+    console.log('🔐 Verificação de permissões:', { hasPermission, userRole })
+    
     if (!hasPermission) {
+      console.warn('⚠️ Permissão negada para atualizar usuário')
       return { 
         success: false, 
         error: '❌ Você precisa ser Administrador ou Gerente para atualizar usuários.' 
       }
     }
 
+    // Construir objeto de atualização apenas com campos definidos
     const updateData: any = {}
     if (userData.name !== undefined) updateData.name = userData.name
     if (userData.email !== undefined) updateData.email = userData.email
     if (userData.role !== undefined) updateData.role = userData.role
     if (userData.active !== undefined) updateData.active = userData.active
+    
+    // Adicionar updated_at
+    updateData.updated_at = new Date().toISOString()
 
+    console.log('📝 Dados finais para atualização:', updateData)
+
+    // Tentar atualizar
     const { data, error } = await supabase
       .from('users')
       .update(updateData)
@@ -1059,13 +1072,27 @@ export async function updateUser(userId: string, userData: {
       .single()
 
     if (error) {
-      console.error('Erro ao atualizar usuário:', error)
-      return { success: false, error: error.message }
+      console.error('❌ Erro ao atualizar usuário no Supabase:', error)
+      console.error('Código do erro:', error.code)
+      console.error('Mensagem:', error.message)
+      console.error('Detalhes:', error.details)
+      console.error('Hint:', error.hint)
+      
+      // Verificar se é erro de política RLS
+      if (error.code === '42501' || error.message.includes('policy')) {
+        return { 
+          success: false, 
+          error: '❌ Erro de permissão: As políticas RLS podem precisar ser atualizadas. Execute o script fix_user_update_policies.sql no Supabase.' 
+        }
+      }
+      
+      return { success: false, error: `❌ ${error.message}` }
     }
 
+    console.log('✅ Usuário atualizado com sucesso:', data)
     return { success: true, data }
   } catch (error: any) {
-    console.error('Erro ao atualizar usuário:', error)
+    console.error('❌ Erro inesperado ao atualizar usuário:', error)
     return { success: false, error: error.message || 'Erro interno do servidor' }
   }
 }

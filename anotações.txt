@@ -1,0 +1,2 @@
+- ajustar na parte do usuario, onde o manager não pode editar função do admin
+- 

@@ -17,6 +17,22 @@
 
 </div>
 
+> ### 🎉 **ATUALIZAÇÕES IMPORTANTES**
+> 
+> #### ✅ Configuração do Supabase Melhorada!
+> **✅ Configuração alinhada com o padrão do projeto barbearia**  
+> **✅ Deploy na Vercel simplificado - sem integrações complexas**  
+> **✅ Apenas 2 variáveis de ambiente necessárias**
+>
+> #### 🔧 Correção: Edição de Usuários
+> Se a edição de usuários não estiver funcionando para Admin/Gerente:
+> - [🔧 Guia de Correção](CORRECAO_EDICAO_USUARIOS.md) - Execute o script SQL no Supabase
+>
+> 📚 **Guias Rápidos:**
+> - [⚡ Comandos Rápidos](COMANDOS_RAPIDOS.md) - Execute e pronto!
+> - [📝 Mudanças Aplicadas](MUDANCAS_APLICADAS.md) - O que mudou?
+> - [🚀 Deploy na Vercel](docs/CONFIGURACAO_VERCEL.md) - Guia completo
+
 ---
 
 ## 📋 Sobre o Projeto

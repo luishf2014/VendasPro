@@ -1,38 +1,24 @@
-import { createClient } from '@supabase/supabase-js'
-import { createBrowserClient } from '@supabase/ssr'
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
-// Função para criar o cliente Supabase de forma segura
-function createSupabaseClient() {
-  if (!supabaseUrl || !supabaseAnonKey) {
-    console.warn('⚠️ Supabase não configurado. Configure as variáveis de ambiente.')
-    // Retorna um cliente mock para evitar erros
-    return {
-      auth: {
-        getSession: () => Promise.resolve({ data: { session: null }, error: null }),
-        getUser: () => Promise.resolve({ data: { user: null }, error: null }),
-        signInWithPassword: () => Promise.resolve({ data: { user: null, session: null }, error: { message: 'Supabase não configurado' } }),
-        signUp: () => Promise.resolve({ data: { user: null, session: null }, error: { message: 'Supabase não configurado' } }),
-        signOut: () => Promise.resolve({ error: null }),
-        onAuthStateChange: () => ({ data: { subscription: { unsubscribe: () => {} } } }),
-      },
-      from: () => ({
-        select: () => Promise.resolve({ data: [], error: null }),
-        insert: () => Promise.resolve({ data: null, error: null }),
-        update: () => Promise.resolve({ data: null, error: null }),
-        delete: () => Promise.resolve({ data: null, error: null }),
-      }),
-      rpc: () => Promise.resolve({ data: null, error: null }),
-    } as any
-  }
-  
-  return createBrowserClient(supabaseUrl, supabaseAnonKey)
+if (!supabaseUrl || !supabaseAnonKey) {
+  throw new Error('NEXT_PUBLIC_SUPABASE_URL e NEXT_PUBLIC_SUPABASE_ANON_KEY são obrigatórios!')
 }
 
-// Cliente para uso no browser (client components)
-export const supabase = createSupabaseClient()
+// Cliente para uso no browser - configuração com cookies
+export const supabase = createClientComponentClient<Database>({
+  cookieOptions: {
+    name: 'sb-auth-token',
+    domain: typeof window !== 'undefined' ? window.location.hostname : undefined,
+    sameSite: 'lax',
+    path: '/',
+    secure: process.env.NODE_ENV === 'production'
+  },
+  // Forçar sincronização com cookies do servidor
+  isSingleton: true
+})
 
 // Tipos das tabelas do banco (será gerado automaticamente)
 export interface Database {
