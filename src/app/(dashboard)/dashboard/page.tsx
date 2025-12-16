@@ -78,26 +78,19 @@ export default function DashboardPage() {
         // Verificar se é manager ou admin antes de buscar faturamento diário
         const isManagerOrAdmin = user.role === 'manager' || user.role === 'admin'
         
-        const promises = [
+        const [statsResult, recentResult, lowStockResult] = await Promise.all([
           getDashboardStats(user.id),
           getRecentSales(3),
           getLowStockProducts(5)
-        ]
-        
-        // Adicionar busca de faturamento apenas se for manager/admin
-        if (isManagerOrAdmin) {
-          promises.push(getDailyRevenue(7))
-        }
+        ])
 
-        const results = await Promise.all(promises)
+        setStats(statsResult)
+        setRecentSales(recentResult)
+        setLowStockProducts(lowStockResult)
         
-        setStats(results[0])
-        setRecentSales(results[1])
-        setLowStockProducts(results[2])
-        
-        // Só definir faturamento se for manager/admin
-        if (isManagerOrAdmin && results[3]) {
-          setDailyRevenue(results[3])
+        if (isManagerOrAdmin) {
+          const revenue = await getDailyRevenue(7)
+          setDailyRevenue(revenue)
         } else {
           setDailyRevenue([])
         }
